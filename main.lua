@@ -1,7 +1,7 @@
 --Cette ligne permet d'afficher des traces dans la console pendant l'éxécution
 io.stdout:setvbuf('no');
 
-love.graphics.setDefaultFilter( "nearest" )
+--love.graphics.setDefaultFilter( "nearest" )
 
 
 debugSpr = false;
@@ -16,8 +16,8 @@ local Lander = {}
         Lander.engine = love.graphics.newImage("images/engine.png");
         
         --Lander scale
-        Lander.sx = 2;
-        Lander.sy = 2;
+        Lander.sx = 1;
+        Lander.sy = 1;
 
         --Origin Offset
         Lander.ox = Lander.spr:getWidth() / 2;
@@ -25,7 +25,9 @@ local Lander = {}
 
         --Engine Origin offset 
         Lander.eOx = Lander.engine:getWidth() / 2;   
-        Lander.eOy = Lander.engine:getHeight() / 2;   
+        Lander.eOy = Lander.engine:getHeight() / 2;  
+        
+        Lander.engineOn = false
 
 
 function love.load()
@@ -36,29 +38,33 @@ function love.load()
     Lander.x = largeur / 2;
     Lander.y = hauteur / 2;
 
-    gravityQuotient = 0.0005;
+    gravityCoeff = 0.1;
     
 end
 
 function love.update(dt)
 
     --Lander GRAVITY
-    --Lander.vy = Lander.vy + gravityQuotient;
+    Lander.vy = Lander.vy + (gravityCoeff * dt);
     Lander.y = Lander.y + Lander.vy;
+    Lander.x = Lander.x + Lander.vx;
 
     --Quit game with ESCAPE
     if love.keyboard.isDown("escape") then
         love.event.quit()
     end
 
+    -- ############## INPUTS ##############
     if love.keyboard.isDown("left") then 
-        Lander.angle = Lander.angle + 90 * dt
-    end
-    if love.keyboard.isDown("right") then 
         Lander.angle = Lander.angle - 90 * dt
     end
+    if love.keyboard.isDown("right") then 
+        Lander.angle = Lander.angle + 90 * dt
+    end
     if love.keyboard.isDown("up") then 
-
+        Lander.engineOn = true
+    else
+        Lander.engineOn = false
     end
    
         
@@ -72,19 +78,18 @@ function love.draw()
         --Draw lines to control if spr is centered at begining
         love.graphics.line(largeur/2, 0, largeur/2, hauteur);
         love.graphics.line(0, hauteur/2, largeur, hauteur/2);
-
-        
-
     end
 
     --Debug Angle
     love.graphics.print("Angle: "..Lander.angle, 15, 15)
 
-    --Affichage Image
+    --Draw Ship (Idle)
     love.graphics.draw(Lander.spr, Lander.x, Lander.y, math.rad(Lander.angle), Lander.sx, Lander.sy, Lander.ox, Lander.oy);
     
-    if love.keyboard.isDown("up") then 
+    --Draw Engine if Up Keypressed
+    if Lander.engineOn == true then 
         love.graphics.draw(Lander.engine, Lander.x, Lander.y, math.rad(Lander.angle), Lander.sx, Lander.sy, Lander.eOx, Lander.eOy);
+        
     end
     
 
